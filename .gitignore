@@ -78,3 +78,6 @@ typings/
 
 # DynamoDB Local files
 .dynamodb/
+
+# Ignore compiled code
+dist
