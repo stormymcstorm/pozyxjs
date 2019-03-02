@@ -6,9 +6,16 @@
   "license": "MIT",
   "repository": "https://github.com/stormymcstorm/pozyxjs",
   "scripts": {
-    "build": "microbundle -f cjs,es --target node --strict"
+    "build": "microbundle --format cjs --target node --strict"
   },
   "devDependencies": {
+    "@types/node": "^11.9.0",
+    "@types/usb": "^1.5.1",
     "microbundle": "^0.9.0"
+  },
+  "dependencies": {
+    "debug": "^4.1.1",
+    "usb": "^1.5.0",
+    "usb-cdc-acm": "^0.1.1"
   }
 }
