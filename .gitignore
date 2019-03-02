@@ -79,5 +79,8 @@ typings/
 # DynamoDB Local files
 .dynamodb/
 
+# ts compilation cache
+.rts2_cache*
+
 # Ignore compiled code
 dist
