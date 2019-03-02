@@ -81,7 +81,7 @@ export default class USBSerialConnection implements Connection {
   }
 
   public write(register: number, data: Buffer): Promise<any> {
-    data = toBufferOfTwoDigitHexStrings(data);
+    data = toBufferOfByteHexStrings(data);
     const length = data.length;
 
     if (length > MAX_SERIAL_SIZE) {
@@ -119,7 +119,7 @@ export default class USBSerialConnection implements Connection {
       if (params.length > 14)
         throw new Error('functions params cannot exceed 14 bytes in length');
 
-      params = toBufferOfTwoDigitHexStrings(params);
+      params = toBufferOfByteHexStrings(params);
       const lenString = length.toString();
 
       const buf = Buffer.allocUnsafe(HEADER_SIZE + params.length + lenString.length + 2);
@@ -152,7 +152,7 @@ export default class USBSerialConnection implements Connection {
   }
 }
 
-function toBufferOfTwoDigitHexStrings(data: Buffer) {
+function toBufferOfByteHexStrings(data: Buffer) {
   const buf = Buffer.allocUnsafe(data.length * 2);
 
   for (let i = 0; i < data.length; i++)
@@ -161,7 +161,7 @@ function toBufferOfTwoDigitHexStrings(data: Buffer) {
   return buf;
 }
 
-function fromBufferOfTwoDigitHexStrings(buf: Buffer) {
+function fromBufferOfByteHexStrings(buf: Buffer) {
   return Buffer.from(buf.reduce((bytes, char) => {
     if (bytes.length == 0 || bytes[bytes.length - 1].length == 2) {
       bytes.push([char]);
@@ -185,5 +185,5 @@ function parseData(msg: Buffer) {
   if (end == -1)
     end = msg.length;
 
-  return fromBufferOfTwoDigitHexStrings(msg.slice(DATA_HEADER_SIZE, end));
+  return fromBufferOfByteHexStrings(msg.slice(DATA_HEADER_SIZE, end));
 }
