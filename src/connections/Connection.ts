@@ -3,6 +3,11 @@
  */
 export default interface Connection {
   /**
+   * Whether or not the connection is remote
+   */
+  readonly isRemote: boolean;
+
+  /**
    * Initializes the connection
    * 
    * @returns {Promise} resolved when the connection is initialized
@@ -16,7 +21,7 @@ export default interface Connection {
    * @param length the length of the data to read
    * @returns {Promise} resolves to the data. bytes are in little endian ordering
    */
-  read(register: number, length: number): Promise<Buffer>
+  read(register: number, length: number): Promise<Buffer>;
 
   /**
    * Writes the data to the given register
@@ -35,5 +40,5 @@ export default interface Connection {
    * @param length the length of the data the function is expected to return
    * @returns {Promise<Buffer>} resolves to the data returned by the function. bytes are in little endian order
    */
-  call(register: number, params: Buffer, length: number)
+  call(register: number, params: Buffer, length: number): Promise<Buffer>;
 }

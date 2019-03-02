@@ -18,6 +18,8 @@ const DATA_END_CHAR_CODE = '\r'.charCodeAt(0);
  * A usb serial connection to a pozyx
  */
 export default class USBSerialConnection implements Connection {
+  public readonly isRemote = false;
+
   private _usb: COMMUSBStream;
   private _dataHandlerQueue: ((data: Buffer) => void)[] = [];
 
@@ -112,7 +114,7 @@ export default class USBSerialConnection implements Connection {
     });
   }
 
-  public call(register: number, params: Buffer, length: number) {
+  public call(register: number, params: Buffer, length: number): Promise<Buffer> {
     return new Promise((resolve, reject) => {
       if (params.length > 14)
         throw new Error('functions params cannot exceed 14 bytes in length');
