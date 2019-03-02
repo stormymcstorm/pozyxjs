@@ -148,7 +148,7 @@ export default class USBSerialConnection implements Connection {
 
         reject(err);
       });
-    });
+    }).then(parseData);
   }
 }
 
@@ -175,6 +175,9 @@ function fromBufferOfTwoDigitHexStrings(buf: Buffer) {
 }
 
 function parseData(msg: Buffer) {
+  if (msg.readUInt8(0) != 68)
+    throw new Error('Malformed data message')
+
   const data = [];
 
   let end = msg.lastIndexOf(DATA_END_CHAR_CODE);
