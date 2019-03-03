@@ -178,16 +178,25 @@ function toBufferOfByteHexStrings(data: Buffer) {
 }
 
 function fromBufferOfByteHexStrings(buf: Buffer) {
-  return Buffer.from(buf.reduce((bytes, char) => {
-    if (bytes.length == 0 || bytes[bytes.length - 1].length == 2) {
-      bytes.push([char]);
-    } else {
-      bytes[bytes.length - 1].push(char);
-    } 
+  const data = Buffer.alloc(buf.length / 2);
 
-    return bytes;
-  }, [])
-  .map(pair => parseInt(String.fromCodePoint(...pair), 16)));
+  for (let i = 0; i < buf.length - 1; i += 2) // every pair
+    data.writeUInt8(intFromHexChar(buf[i]) * 16 + intFromHexChar(buf[i + 1]), i / 2);  
+  
+  return data;
+}
+
+function intFromHexChar(char: number) {
+  if (48 <= char && char <= 57) // from '0' to '9'
+    return char - 48;
+
+  if (97 <= char && char <= 122) // from 'a' to 'f'
+    return char - 97 + 10;
+
+  if (65 <= char && char <= 70) // from 'A' to 'F'
+    return char - 65 + 10;
+
+  throw new Error(`Invalid hex character: ${String.fromCharCode(char)}`);
 }
 
 function parseData(msg: Buffer) {
