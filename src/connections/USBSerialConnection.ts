@@ -1,7 +1,6 @@
 import COMMUSBStream from './COMMUSBStream';
 import Connection from './Connection';
 import * as usb from 'usb';
-import { delay } from '../promise-utils';
 
 const POZYX_LINE_CODING = {
   baudrate: 115200,
