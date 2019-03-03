@@ -11,7 +11,7 @@ const dbg = debug('COMMUSBStream');
  * 
  * @see https://www.beyondlogic.org/usbnutshell/usb6.shtml
  */
-export enum RequestType {
+export const enum RequestType {
   // bit 7
   /**
    * Data should go from host to device
@@ -66,7 +66,7 @@ export enum RequestType {
  * 
  * @see https://www.beyondlogic.org/usbnutshell/usb6.shtml
  */
-export enum Request {
+export const enum Request {
   /**
    * Sets UART line settings
    */
