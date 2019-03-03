@@ -47,15 +47,15 @@ export default class USBSerialConnection implements Connection {
     return this._isInitialized;
   }
 
-  public read(register: number, length: number): Promise<Buffer> {
+  public read(address: number, length: number): Promise<Buffer> {
     if (length > MAX_SERIAL_SIZE) {
       const nMsgs = (length / MAX_SERIAL_SIZE) >> 0; // truncate decimal places
       const proms: Promise<Buffer>[] = [];
 
       for (let i = 0; i < nMsgs; i++)
-        proms.push(this.read(register + i * MAX_SERIAL_SIZE, MAX_SERIAL_SIZE));
+        proms.push(this.read(address + i * MAX_SERIAL_SIZE, MAX_SERIAL_SIZE));
 
-      proms.push(this.read(register + nMsgs * MAX_SERIAL_SIZE, length - nMsgs * MAX_SERIAL_SIZE));
+      proms.push(this.read(address + nMsgs * MAX_SERIAL_SIZE, length - nMsgs * MAX_SERIAL_SIZE));
       
       return Promise.all(proms)
         .then(Buffer.concat);
@@ -69,7 +69,7 @@ export default class USBSerialConnection implements Connection {
       const buf = Buffer.allocUnsafe(HEADER_SIZE + lenString.length + 1);
 
       buf.write('R,', 0);
-      buf.write(register.toString(16).padStart(2, '0'), 2); // write register in hex with two digits
+      buf.write(address.toString(16).padStart(2, '0'), 2); // write register in hex with two digits
       buf.write(',', 4);
       buf.write(lenString, 5);
       buf.write('\r', 5 + lenString.length);
@@ -90,7 +90,7 @@ export default class USBSerialConnection implements Connection {
     }).then(parseData);
   }
 
-  public write(register: number, data: Buffer): Promise<any> {
+  public write(address: number, data: Buffer): Promise<any> {
     data = toBufferOfByteHexStrings(data);
     const length = data.length;
 
@@ -99,9 +99,9 @@ export default class USBSerialConnection implements Connection {
       const proms: Promise<any>[] = [];
 
       for (let i = 0; i < nMsgs; i++)
-        proms.push(this.write(register + i * MAX_SERIAL_SIZE, data.slice(i * MAX_SERIAL_SIZE, (i + 1) * MAX_SERIAL_SIZE)));
+        proms.push(this.write(address + i * MAX_SERIAL_SIZE, data.slice(i * MAX_SERIAL_SIZE, (i + 1) * MAX_SERIAL_SIZE)));
 
-      proms.push(this.write(register + nMsgs * MAX_SERIAL_SIZE, data.slice(nMsgs * MAX_SERIAL_SIZE)));
+      proms.push(this.write(address + nMsgs * MAX_SERIAL_SIZE, data.slice(nMsgs * MAX_SERIAL_SIZE)));
       
       return Promise.all(proms);
     }
@@ -113,7 +113,7 @@ export default class USBSerialConnection implements Connection {
       const buf = Buffer.allocUnsafe(HEADER_SIZE + data.length + 1);
 
       buf.write('W,', 0);
-      buf.write(register.toString(16).padStart(2, '0'), 2); // write register in hex with two digits
+      buf.write(address.toString(16).padStart(2, '0'), 2); // write register in hex with two digits
       buf.write(',', 4);
       
       data.copy(buf, 5);
@@ -127,7 +127,7 @@ export default class USBSerialConnection implements Connection {
     });
   }
 
-  public call(register: number, params: Buffer, length: number): Promise<Buffer> {
+  public call(address: number, params: Buffer, length: number): Promise<Buffer> {
     return new Promise((resolve, reject) => {
       if (! this._isInitialized)
         throw new Error('Cannot call a function until the connection has been initialized');
@@ -141,7 +141,7 @@ export default class USBSerialConnection implements Connection {
       const buf = Buffer.allocUnsafe(HEADER_SIZE + params.length + lenString.length + 2);
 
       buf.write('F,', 0);
-      buf.write(register.toString(16).padStart(2, '0'), 2); // write register in hex with two digits
+      buf.write(address.toString(16).padStart(2, '0'), 2); // write register in hex with two digits
       buf.write(',', 4);
       
       params.copy(buf, 5);
