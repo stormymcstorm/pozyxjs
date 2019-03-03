@@ -38,6 +38,18 @@ export enum Status {
   CALIBRATION_STATUS = 0x6,
 }
 
+/**
+ * Checks whether or not the register is a status register
+ * @param reg the register
+ * @returns {boolean} whether or not the register is a status register
+ */
+export function isStatusRegister(reg) {
+  return 0x00 <= reg && reg <= 0x0f;
+}
+
+/**
+ * Pozyx configuration registers
+ */
 export enum Config {
   /**
    * Enables or disables interrupt
@@ -159,6 +171,16 @@ export enum Config {
 //   Config.UWB_PLEN, 
 //   Config.UWB_GAIN
 // ];
+
+/**
+ * Checks whether or not the register is a configuration register 
+ * 
+ * @param reg the registers
+ * @returns {boolean} whether or not the register is a configuration register 
+ */
+export function isConfigRegister(reg: number): boolean {
+  return 0x10 <= reg && reg <= 0x0f;
+}
 
 /**
  * Pozyx position data registers
@@ -339,6 +361,16 @@ export enum SensorData {
    * Read temperature for internal chip temperatures
    */
   TEMPERATURE = 0x80,  // Temperature
+};
+
+/**
+ * Checks whether or not the register is a sensor data register
+ * 
+ * @param reg the register
+ * @returns {boolean} whether or not the register is a sensor data register
+ */
+export function isDataRegister(reg: number): boolean {
+  return 0x30 <= reg && reg <= 0x9f;
 }
 
 /**
@@ -450,3 +482,13 @@ export enum Function {
    */
   DO_POSITIONING_WITH_DATA = 0xCC,
 };
+
+/**
+ * Checks whether or not the register is a function register
+ * 
+ * @param reg the register
+ * @returns {boolean} whether or not the register is a function register
+ */
+export function isFunctionRegister(reg: number): boolean {
+  return 0xA0 <= reg && reg <= 0xFFF;
+}
