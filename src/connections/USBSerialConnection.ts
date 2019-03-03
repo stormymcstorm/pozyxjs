@@ -1,6 +1,7 @@
 import COMMUSBStream from './COMMUSBStream';
 import Connection from './Connection';
 import * as usb from 'usb';
+import { delay } from '../promise-utils';
 
 const POZYX_LINE_CODING = {
   baudrate: 115200,
@@ -164,7 +165,14 @@ export default class USBSerialConnection implements Connection {
 
         reject(err);
       });
-    }).then(parseData);
+    })
+    .then(parseData)
+    .then(data => {
+      if (data.length && data.readUInt8(0) < 1) // if any data is returned then the first byte indicates the success 
+        throw new Error('Function failed');
+
+      return data;
+    })
   }
 }
 
