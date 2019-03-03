@@ -1,5 +1,6 @@
 import COMMUSBStream from './COMMUSBStream';
 import Connection from './Connection';
+import * as usb from 'usb';
 
 const POZYX_LINE_CODING = {
   baudrate: 115200,
@@ -28,7 +29,7 @@ export default class USBSerialConnection implements Connection {
    * Creates a new serial connection with a pozyx device
    * @param device the usb device
    */
-  constructor(device) {
+  constructor(device: usb.Device) {
     this._usb = new COMMUSBStream(device);
 
     this._usb.on('data', chunk => {
