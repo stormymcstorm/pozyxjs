@@ -20,6 +20,7 @@ const DATA_END_CHAR_CODE = '\r'.charCodeAt(0);
 export default class USBSerialConnection implements Connection {
   public readonly isRemote = false;
 
+  private _isInitialized = false;
   private _usb: COMMUSBStream;
   private _dataHandlerQueue: ((data: Buffer) => void)[] = [];
 
@@ -37,7 +38,12 @@ export default class USBSerialConnection implements Connection {
   }
 
   public init() {
-    return this._usb.init(POZYX_LINE_CODING);
+    return this._usb.init(POZYX_LINE_CODING)
+      .then(() => {this._isInitialized = true});
+  }
+
+  public isInitialized() {
+    return this._isInitialized;
   }
 
   public read(register: number, length: number): Promise<Buffer> {
@@ -55,6 +61,9 @@ export default class USBSerialConnection implements Connection {
     }
 
     return new Promise((resolve, reject) => {
+      if (! this._isInitialized)
+        throw new Error('Cannot read until the connection has been initialized');
+
       const lenString = length.toString();
       const buf = Buffer.allocUnsafe(HEADER_SIZE + lenString.length + 1);
 
@@ -97,6 +106,9 @@ export default class USBSerialConnection implements Connection {
     }
 
     return new Promise((resolve, reject) => {
+      if (! this._isInitialized)
+        throw new Error('Cannot write until the connection has been initialized');
+
       const buf = Buffer.allocUnsafe(HEADER_SIZE + data.length + 1);
 
       buf.write('W,', 0);
@@ -116,6 +128,9 @@ export default class USBSerialConnection implements Connection {
 
   public call(register: number, params: Buffer, length: number): Promise<Buffer> {
     return new Promise((resolve, reject) => {
+      if (! this._isInitialized)
+        throw new Error('Cannot call a function until the connection has been initialized');
+
       if (params.length > 14)
         throw new Error('functions params cannot exceed 14 bytes in length');
 

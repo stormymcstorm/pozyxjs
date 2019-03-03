@@ -15,6 +15,11 @@ export default interface Connection {
   init(): Promise<any>;
 
   /**
+   * Checks whether or not the connection has been initialized
+   */
+  isInitialized(): boolean;
+
+  /**
    * Reads from the given register
    * 
    * @param register the register to read from
