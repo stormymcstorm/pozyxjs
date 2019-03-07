@@ -3,12 +3,14 @@ import { ReadRegister } from "./Register";
 /**
  * Used to read the WHO_AM_I register
  * After being decode the result is some number. Hopefully 0x43
+ * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#POZYX_WHO_AM_I}
  */
 export const WHO_AM_I = new ReadRegister<number>(0x00, 1, data => data.readUInt8(0));
 
 /**
  * Used to get the firmware version of the device
  * After being decoded the result is [major, minor]
+ * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#POZYX_FIRMWARE_VER}
  */
 export const FIRMWARE_VERSION = new ReadRegister<[number, number]>(0x01, 1, buf => {
   // | bit 7 | bit 6 | bit 5 | bit 4 | bit 3 | bit 2 | bit 1 | bit 0 |
@@ -22,6 +24,7 @@ export const FIRMWARE_VERSION = new ReadRegister<[number, number]>(0x01, 1, buf 
 /**
  * Used to get the hardware version of the device
  * After being decoded the result is [version, isAnchor]
+ * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#POZYX_HARDWARE_VER}
  */
 export const HARDWARE_VERSION = new ReadRegister<[number, boolean]>(0x02, 1, buf => {
   // | bit 7 | bit 6 | bit 5 | bit 4 | bit 3 | bit 2 | bit 1 | bit 0 |
@@ -86,7 +89,8 @@ export interface SelfTestResult {
 
 /**
  * Reads the device's self test results.
- * Decodes tp a {@link SelfTestResult}
+ * Decodes to a {@link SelfTestResult}
+ * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#POZYX_ST_RESULT}
  */
 export const SELF_TEST_RESULTS = new ReadRegister<SelfTestResult>(0x03, 1, buf => {
   // | bit 7 | bit 6 | bit 5 | bit 4 | bit 3 | bit 2 | bit 1 | bit 0 |
@@ -150,6 +154,8 @@ for (const key in PozyxError)
 
 /**
  * Reads the error code from the device.
+ * Decodes to a number.
+ * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#POZYX_ERRORCODE}
  */
 export const ERROR_CODE = new ReadRegister<PozyxError>(0x04, 1, buf => buf.readUInt8(0));
 
@@ -186,6 +192,7 @@ export interface InterruptStatus {
 /**
  * Reads the interrupt status of the device
  * Decodes to a {@link InterruptStatus}
+ * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#INT_STATUS}
  */
 export const INT_STATUS = new ReadRegister<InterruptStatus>(0x05, 1, buf => {
   // | bit 7 | bit 6 | bit 5 | bit 4 | bit 3 | bit 2 | bit 1 | bit 0 |
@@ -229,6 +236,7 @@ export interface CalibrationStatus {
 /**
  * Reads the device's calibration status
  * Decodes to a {@link ReadRegister}
+ * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#CALIB_STATUS}
  */
 export const CALIBRATION_STATUS = new ReadRegister<CalibrationStatus>(0x06, 1, buf => {
   // | bit 7 | bit 6 | bit 5 | bit 4 | bit 3 | bit 2 | bit 1 | bit 0 |
