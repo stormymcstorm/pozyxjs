@@ -146,7 +146,7 @@ export enum PozyxError {
 /**
  * Pozyx error codes
  */
-export const ERROR_CODES = {};
+export const ERROR_CODES: {[key: number]: String} = {};
 
 for (const key in PozyxError)
   if (PozyxError.hasOwnProperty(key))
@@ -201,10 +201,10 @@ export const INT_STATUS = new ReadRegister<InterruptStatus>(0x05, 1, buf => {
 
   return {
     err: (data & 1) == 1,
-    pos: ((data >> 1) & 1) == 1,
-    imu: ((data >> 2) & 1) == 1,
-    rx_data: ((data >> 3) & 1) == 1,
-    func: ((data >> 4) & 1) == 1,
+    pos: (data >> 1 & 1) == 1,
+    imu: (data >> 2 & 1) == 1,
+    rx_data: (data >> 3 & 1) == 1,
+    func: (data >> 4 & 1) == 1,
   };
 });
 
@@ -247,8 +247,8 @@ export const CALIBRATION_STATUS = new ReadRegister<CalibrationStatus>(0x06, 1, b
 
   return {
     mag: (data & 0b11) == 0x3,
-    acc: ((data >> 2) & 0b11) == 0x3,
-    gyro: ((data >> 4) & 0b11) == 0x3,
-    system: ((data >> 6) & 0b11) == 0x3,
+    acc: (data >> 2 & 0b11) == 0x3,
+    gyro: (data >> 4 & 0b11) == 0x3,
+    system: (data >> 6 & 0b11) == 0x3,
   };
 });
