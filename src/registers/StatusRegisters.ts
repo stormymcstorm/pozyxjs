@@ -50,6 +50,7 @@ export const HARDWARE_VERSION = new ReadRegister<[number, boolean]>(0x02, 1, buf
 
 /**
  * Results of the device's self test
+ * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#POZYX_ST_RESULT}
  */
 export interface SelfTestResult {
   /**
@@ -109,6 +110,7 @@ export const SELF_TEST_RESULTS = new ReadRegister<SelfTestResult>(0x03, 1, buf =
 
 /**
  * Pozyx errors
+ * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#POZYX_ERRORCODE}
  */
 export enum PozyxError {
   SUCCESS = 0x00,
@@ -145,6 +147,7 @@ export enum PozyxError {
 
 /**
  * Pozyx error codes
+ * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#POZYX_ERRORCODE}
  */
 export const ERROR_CODES: {[key: number]: String} = {};
 
@@ -161,6 +164,7 @@ export const ERROR_CODE = new ReadRegister<PozyxError>(0x04, 1, buf => buf.readU
 
 /**
  * Status of an interrupt
+ * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#INT_STATUS}
  */
 export interface InterruptStatus {
   /**
@@ -210,6 +214,7 @@ export const INT_STATUS = new ReadRegister<InterruptStatus>(0x05, 1, buf => {
 
 /**
  * The calibration status of the device's subsystems
+ * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#CALIB_STATUS}
  */
 export interface CalibrationStatus {
   /**
