@@ -23,7 +23,7 @@ export const FIRMWARE_VERSION = new ReadRegister<[number, number]>(0x01, 1, buf 
 
 /**
  * Used to get the hardware version of the device
- * After being decoded the result is [version, isAnchor]
+ * After being decoded the result is [version, isShield]
  * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#POZYX_HARDWARE_VER}
  */
 export const HARDWARE_VERSION = new ReadRegister<[number, boolean]>(0x02, 1, buf => {
@@ -39,13 +39,8 @@ export const HARDWARE_VERSION = new ReadRegister<[number, boolean]>(0x02, 1, buf
     version = 1.2;
   else if ((data & 0b1_1111) == 0x3)
     version = 1.3;
-  else
-    throw new Error("Invalid hardware version: " + (data & 0b1_1111));
-
-  if (type != 0x0 && type != 0x1)
-    throw new Error("Invalid hardware type: " + type);
   
-  return [version, type == 0x0];
+  return [version, type == 1];
 });
 
 /**
