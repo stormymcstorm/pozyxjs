@@ -63,6 +63,7 @@ export class FunctionRegister<P, R> {
    * @param encode encodes the parameters
    */
   constructor(public readonly address: number, public readonly size: number, 
-    public readonly decode: (data: Buffer) => R, public readonly encode: (data: P) => Buffer) {
+    public readonly decode: (data: Buffer) => R, public readonly encode: (data: P) => Buffer,
+    public readonly delay = 0) {
   }
 }
