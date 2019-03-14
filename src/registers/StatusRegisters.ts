@@ -57,7 +57,7 @@ export interface SelfTestResult {
    * Whether or not the mangetometer passed the self test. This is always false 
    * for anchors because anchors do not have a mangetometer.
    */
-  magn: boolean,
+  mag: boolean,
 
   /**
    * Whether or not the gyroscope passed the self test. This is always false 
@@ -90,12 +90,12 @@ export interface SelfTestResult {
  */
 export const SELF_TEST_RESULTS = new ReadRegister<SelfTestResult>(0x03, 1, buf => {
   // | bit 7 | bit 6 | bit 5 | bit 4 | bit 3 | bit 2 | bit 1 | bit 0 |
-  // |       |       |  UWB  | PRESS |  IMU  | GYRO  | MAGN  | ACC   |
+  // |       |       |  UWB  | PRESS |  IMU  | GYRO  | MAG   | ACC   |
 
   const data = buf.readUInt8(0);
   return {
     acc: (data & 1) == 1,
-    magn: ((data >> 1) & 1) == 1,
+    mag: ((data >> 1) & 1) == 1,
     gyro: ((data >> 2) & 1) == 1,
     imu: ((data >> 3) & 1) == 1,
     press: ((data >> 4) & 1) == 1,
