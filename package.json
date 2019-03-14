@@ -1,6 +1,7 @@
 {
   "name": "pozyx",
   "version": "0.0.1",
+  "description": "A client library for Pozyx",
   "main": "dist/index.js",
   "author": "Carson Storm <stormymcstorm@gmail.com>",
   "license": "MIT",
