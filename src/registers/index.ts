@@ -1,4 +1,4 @@
-import Register, {ReadRegister, ReadWriteRegister} from './Register';
+import Register, {ReadRegister, ReadWriteRegister, FunctionRegister} from './Register';
 import * as Status from './StatusRegisters';
 import * as Config from './ConfigRegisters';
 import * as Sensor from './SensorRegisters';
@@ -9,6 +9,7 @@ export {
   Register,
   ReadRegister,
   ReadWriteRegister,
+  FunctionRegister
 };
 
 export {
