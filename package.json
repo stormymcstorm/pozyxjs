@@ -7,8 +7,9 @@
   "license": "MIT",
   "repository": "https://github.com/stormymcstorm/pozyxjs",
   "scripts": {
-    "build": "microbundle --format cjs --target node --strict",
-    "test": "mocha -r ts-node/register src/**/*.test.ts"
+    "build": "microbundle --format cjs --target node --strict --declaration=false",
+    "test": "mocha -r ts-node/register src/**/*.test.ts",
+    "prepublishOnly": "npm run build && npm run test"
   },
   "devDependencies": {
     "@types/chai": "^4.1.7",
