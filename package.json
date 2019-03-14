@@ -6,12 +6,18 @@
   "license": "MIT",
   "repository": "https://github.com/stormymcstorm/pozyxjs",
   "scripts": {
-    "build": "microbundle --format cjs --target node --strict"
+    "build": "microbundle --format cjs --target node --strict",
+    "test": "mocha -r ts-node/register src/**/*.test.ts"
   },
   "devDependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.6",
     "@types/node": "^11.9.0",
     "@types/usb": "^1.5.1",
-    "microbundle": "^0.11.0"
+    "chai": "^4.2.0",
+    "microbundle": "^0.11.0",
+    "mocha": "^6.0.2",
+    "ts-node": "^8.0.3"
   },
   "dependencies": {
     "debug": "^4.1.1",
