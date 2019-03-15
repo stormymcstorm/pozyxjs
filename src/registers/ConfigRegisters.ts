@@ -1,5 +1,5 @@
-import { ReadWriteRegister } from ".";
-import { arrayFromMask, maskFromArray } from "./util";
+import { ReadWriteRegister } from './Register';
+import { maskFromArray } from '../utils';
 
 /**
  * Configuration for device interrupts

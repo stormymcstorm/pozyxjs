@@ -32,3 +32,13 @@ export function arrayFromMask(mask: number): boolean[] {
 
   return arr;
 }
+
+/**
+ * Asserts that the function call was successful
+ * 
+ * @param ok whether or not the function call was successful
+ */
+export function assertFunctionCallSuccess(ok: boolean) {
+  if (! ok)
+    throw new Error('Function call failed');
+}

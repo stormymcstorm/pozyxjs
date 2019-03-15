@@ -1,5 +1,5 @@
-import { FunctionRegister } from "./Register";
-import { maskFromArray } from "./util";
+import { FunctionRegister } from './Register';
+import { maskFromArray } from '../utils';
 
 const EMPTY_BUFFER = Buffer.allocUnsafe(0);
 const IS_SUCCESS = (buf: Buffer) => buf.readUInt8(0) > 0;
@@ -28,7 +28,7 @@ export const LED_CTRL = new FunctionRegister<[boolean?, boolean?, boolean?, bool
   params => {
     // | bit 7 | bit 6 | bit 5 | bit 4 | bit 3 | bit 2 | bit 1 | bit 0 |
     // | USE 4 | USE 3 | USE 2 | USE 1 | LED 4 | LED 3 | LED 2 | LED 1 |
-    let bm = maskFromArray(params) + 0b1111 << 4;
+    let bm = maskFromArray(params) | 0b1111 << 4;
 
     // set the USE x bit to zero if params[x] is undefined
     for (let i = 0 ; i < params.length; i++) 
