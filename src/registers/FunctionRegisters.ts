@@ -1,5 +1,6 @@
 import { FunctionRegister } from './Register';
-import { maskFromArray } from '../utils';
+import { maskFromArray, isValidNetworkID, isValidCoordinate, MIN_INT32, MAX_INT32 } from '../utils';
+import Coordinate from '../Coordinate';
 
 const EMPTY_BUFFER = Buffer.allocUnsafe(0);
 const IS_SUCCESS = (buf: Buffer) => buf.readUInt8(0) > 0;
@@ -314,13 +315,51 @@ export const DEVICES_GETIDS = new FunctionRegister<[number, number], [boolean, n
   }
 );
 
-// TODO: DEVICES_DISCOVER register
-// export const DEVICES_DISCOVER = new FunctionRegister<, boolean>(0xc1, 1,
-//   IS_SUCCESS,
-//   params => {
+/**
+ * The type of discovery to perform
+ * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#POZYX_DEVICES_DISCOVER}
+ */
+export enum DiscoveryType {
+  /**
+   * Discover all device
+   */
+  ALL = 0x2,
 
-//   }
-// );
+  /**
+   * Discover only anchors
+   */
+  ANCHORS = 0x0,
+
+  /**
+   * Discover only tags
+   */
+  TAGS = 0x1,
+}
+
+/**
+ * Calls the device's DEVICES_DISCOVER function. Used to discover devices within
+ * range.
+ * Accepts a tuple where the first value is a {@link DiscoveryType}, the second 
+ * value is the number of devices to undiscovered devices to wait for and the
+ * third value is the timeout for discovery.
+ * Returns a boolean indicating the success of the call
+ * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#POZYX_DEVICES_DISCOVER}
+ */
+export const DEVICES_DISCOVER = new FunctionRegister<[DiscoveryType?, number?, number?], boolean>(0xc1, 1,
+  IS_SUCCESS,
+  ([type = DiscoveryType.ALL, slots = 3, timeout = 10]) => {
+    if (type != 0x0 && type != 0x1 && type != 0x2)
+      throw new Error('Invalid discovery type: ' + type);
+    
+    if (slots < 0 || slots > 255)
+      throw new RangeError('Invalid slot count: ' + slots);
+
+    if (timeout < 0 || timeout > 255)
+      throw new RangeError('Invalid timeout: ' + timeout);
+    
+    return Buffer.from([type, slots, timeout]);
+  }
+);
 
 // TODO: DEVICES_CALIBRATE register
 // export const DEVICES_CALIBRATE = new FunctionRegister<, boolean>(0xc1, 1,
@@ -340,60 +379,120 @@ export const DEVICES_CLEAR = new FunctionRegister<void, boolean>(0xc3, 1,
   NO_PARAMS
 );
 
-// TODO: DEVICE_ADD
-// export const DEVICE_ADD = new FunctionRegister<, boolean>(0xc4, 1,
-//   IS_SUCCESS,
-//   params => {
+export interface DeviceInfo {
+  id: number,
+  isAnchor: boolean,
+  position: Coordinate
+};
 
-//   }
-// );
+// TODO: DEVICE_ADD
+export const DEVICE_ADD = new FunctionRegister<DeviceInfo, boolean>(0xc4, 1,
+  IS_SUCCESS,
+  ({id, isAnchor, position}) => {
+    if (! isValidNetworkID(id))
+      throw new Error('Invalid network id: ' + id);
+
+    if (! isValidCoordinate(position))
+      throw new Error('Invalid position: ' + position);
+
+    const buf = Buffer.allocUnsafe(15);
+    
+    buf.writeUInt16LE(id, 0);
+    buf.writeUInt8(+isAnchor, 2);
+
+    buf.writeInt32LE(position.x, 3);
+    buf.writeInt32LE(position.y, 7);
+    buf.writeInt32LE(position.z, 11);
+
+    return buf;
+  }
+);
 
 // TODO: DEVICE_GETINFO
-// export const DEVICE_GETINFO = new FunctionRegister<number, >(0xc5, 24
-//   buf => {
+export const DEVICE_GETINFO = new FunctionRegister<number, [boolean, DeviceInfo]>(0xc5, 15,
+  buf => {
+    const ok = buf.readUInt8(0);
 
-//   },
-//   params => {
-//     if (params < 0 || params > (1 << 16) - 1)
-//       throw new Error('Invalid network id: ' + params);
+    if (! ok)
+      return [false, null];
+
+    const info = {
+      id: buf.readUInt16LE(1),
+      isAnchor: buf.readUInt8(3) == 1,
+      position: {
+        x: buf.readInt32LE(4),
+        y: buf.readInt32LE(8),
+        z: buf.readInt32BE(12)
+      } 
+    };
+
+    return [true, info];
+  },
+  id => {
+    if (isValidNetworkID(id))
+      throw new Error('Invalid network id: ' + id);
     
-//     const buf = Buffer.allocUnsafe(2);
-//     buf.writeUInt16LE(params, 0);
+    const buf = Buffer.allocUnsafe(2);
+    buf.writeUInt16LE(id, 0);
 
-//     return buf;
-//   }
-// );
+    return buf;
+  }
+);
 
 // TODO: DEVICE_GETCOORDS
-// export const DEVICE_GETCOORDS = new FunctionRegister<number, >(0xc6, 12
-//   buf => {
+export const DEVICE_GETCOORDS = new FunctionRegister<number, [boolean, Coordinate]>(0xc6, 12,
+  buf => {
+    const ok = buf.readUInt8(0);
 
-//   },
-//   params => {
-//     if (params < 0 || params > (1 << 16) - 1)
-//       throw new Error('Invalid network id: ' + params);
+    if (! ok)
+      return [false, null];
+
+    return [true, {
+      x: buf.readInt32LE(1),
+      y: buf.readInt32LE(5),
+      z: buf.readInt32LE(9),
+    }];
+  },
+  id => {
+    if (isValidNetworkID(id))
+      throw new Error('Invalid network id: ' + id);
     
-//     const buf = Buffer.allocUnsafe(2);
-//     buf.writeUInt16LE(params, 0);
+    const buf = Buffer.allocUnsafe(2);
+    buf.writeUInt16LE(id, 0);
 
-//     return buf;
-//   }
-// );
+    return buf;
+  }
+);
+
+export interface RangeInfo {
+  timestamp: number,
+  range: number,
+  strength: number,
+}
 
 // TODO: DEVICE_GETRANGEINFO
-// export const DEVICE_GETRANGEINFO = new FunctionRegister<number, >(0xc6, 12
-//   buf => {
-
-//   },
-//   params => {
-//     if (params < 0 || params > (1 << 16) - 1)
-//       throw new Error('Invalid network id: ' + params);
+export const DEVICE_GETRANGEINFO = new FunctionRegister<number, [boolean, RangeInfo]>(0xc6, 10,
+  buf => {
+    const ok = buf.readUInt8(0);
     
-//     const buf = Buffer.allocUnsafe(2);
-//     buf.writeUInt16LE(params, 0);
+    if (! ok)
+      return [false, null];
 
-//     return buf;
-//   }
-// );
+    return [true, {
+      timestamp: buf.readUInt32LE(1),
+      range: buf.readUInt32LE(5),
+      strength: buf.readInt16LE(9),
+    }];
+  },
+  id => {
+    if (isValidNetworkID(id))
+      throw new Error('Invalid network id: ' + id);
+    
+    const buf = Buffer.allocUnsafe(2);
+    buf.writeUInt16LE(id, 0);
+
+    return buf;
+  }
+);
 
 // TODO: DEVICE_CIR_DATA
