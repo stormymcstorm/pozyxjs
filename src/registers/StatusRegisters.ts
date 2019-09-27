@@ -12,7 +12,7 @@ export const WHO_AM_I = new ReadRegister<number>(0x00, 1, data => data.readUInt8
  * After being decoded the result is [major, minor]
  * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#POZYX_FIRMWARE_VER}
  */
-export const FIRMWARE_VERSION = new ReadRegister<[number, number]>(0x01, 1, buf => {
+export const FIRMWARE_VERSION = new ReadRegister<[number, number]>(0x01, 1, function decode (buf) {
   // | bit 7 | bit 6 | bit 5 | bit 4 | bit 3 | bit 2 | bit 1 | bit 0 |
   // | MAJOR                         | MINOR                         |
 
@@ -26,7 +26,7 @@ export const FIRMWARE_VERSION = new ReadRegister<[number, number]>(0x01, 1, buf 
  * After being decoded the result is [version, isShield]
  * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#POZYX_HARDWARE_VER}
  */
-export const HARDWARE_VERSION = new ReadRegister<[number, boolean]>(0x02, 1, buf => {
+export const HARDWARE_VERSION = new ReadRegister<[number, boolean]>(0x02, 1, function decode (buf) {
   // | bit 7 | bit 6 | bit 5 | bit 4 | bit 3 | bit 2 | bit 1 | bit 0 |
   // | Type                  | VERSION                               |
 
@@ -88,7 +88,7 @@ export interface SelfTestResult {
  * Decodes to a {@link SelfTestResult}
  * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#POZYX_ST_RESULT}
  */
-export const SELF_TEST_RESULTS = new ReadRegister<SelfTestResult>(0x03, 1, buf => {
+export const SELF_TEST_RESULTS = new ReadRegister<SelfTestResult>(0x03, 1, function decode (buf) {
   // | bit 7 | bit 6 | bit 5 | bit 4 | bit 3 | bit 2 | bit 1 | bit 0 |
   // |       |       |  UWB  | PRESS |  IMU  | GYRO  | MAG   | ACC   |
 
@@ -193,7 +193,7 @@ export interface InterruptStatus {
  * Decodes to a {@link InterruptStatus}
  * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#INT_STATUS}
  */
-export const INT_STATUS = new ReadRegister<InterruptStatus>(0x05, 1, buf => {
+export const INT_STATUS = new ReadRegister<InterruptStatus>(0x05, 1, function decode (buf) {
   // | bit 7 | bit 6 | bit 5 | bit 4 | bit 3 | bit 2 | bit 1 | bit 0 |
   // |                       | FUNC  |RX_DATA| IMU   | POS   | ERR   |
   const data = buf.readUInt8(0);
@@ -238,7 +238,7 @@ export interface CalibrationStatus {
  * Decodes to a {@link ReadRegister}
  * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#CALIB_STATUS}
  */
-export const CALIBRATION_STATUS = new ReadRegister<CalibrationStatus>(0x06, 1, buf => {
+export const CALIBRATION_STATUS = new ReadRegister<CalibrationStatus>(0x06, 1, function decode (buf) {
   // | bit 7 | bit 6 | bit 5 | bit 4 | bit 3 | bit 2 | bit 1 | bit 0 |
   // | SYS Calib     | GYR Calib     | ACC Calib     | MAG Calib     |
   
