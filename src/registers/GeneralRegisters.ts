@@ -32,9 +32,7 @@ export const RX_DATA_LEN = new ReadRegister<number>(0x84, 1, buf => buf.readUInt
  */
 export const GPIO1 = new ReadWriteRegister<boolean>(0x85, 1,
   buf => buf.readUInt8(0) == 1,
-  data => {
-    return Buffer.from([+data]);
-  }
+  data => Buffer.from([+data])
 );
 
 /**
