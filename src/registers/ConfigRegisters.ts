@@ -42,7 +42,7 @@ export interface InterruptMask {
  * Encodes from and decodes to {@link InterruptMask}
  * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#POZYX_INT_MASK}
  */
-export const INT_MASK = new ReadWriteRegister<InterruptMask>(0x10, 1, buf => {
+export const INT_MASK = new ReadWriteRegister<InterruptMask>(0x10, 1, function decode (buf) {
   // | bit 7 | bit 6 | bit 5 | bit 4 | bit 3 | bit 2 | bit 1 | bit 0 |
   // |  PIN  |               | FUNC  |RX_DATA| IMU   | POS   | ERR   |
   const data = buf.readUInt8(0);
@@ -55,7 +55,7 @@ export const INT_MASK = new ReadWriteRegister<InterruptMask>(0x10, 1, buf => {
     func: (data >> 4 & 1) == 1,
     pin: data >> 7 & 1,
   };
-}, data => {
+}, function encode (data) {
   const bm = +data.err
     | +data.pos << 1
     | +data.imu << 2
@@ -100,7 +100,7 @@ export interface InterruptPinConfig {
  * Encodes from and decodes to {@link InterruptPinConfig}.
  * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#POZYX_INT_CONFIG}
  */
-export const INT_CONFIG = new ReadWriteRegister<InterruptPinConfig>(0x11, 1, buf => {
+export const INT_CONFIG = new ReadWriteRegister<InterruptPinConfig>(0x11, 1, function decode (buf) {
   // | bit 7 | bit 6 | bit 5 | bit 4 | bit 3 | bit 2 | bit 1 | bit 0 |
   // |               | LATCH |  ACT  |  MODE |         PINNUM        |
   const data = buf.readUInt8(0);
@@ -111,7 +111,7 @@ export const INT_CONFIG = new ReadWriteRegister<InterruptPinConfig>(0x11, 1, buf
     active: (data >> 4 & 1) == 1,
     latch: (data >> 5 & 1) == 1,
   };
-}, data => {
+}, function encode(data) {
   if (data.pin < 0 || data.pin > 6)
     throw new Error('Invalid pin number: ' + data.pin);
 
@@ -154,7 +154,7 @@ export enum PositionFilter {
  * Encodes from and decodes to [{@link PositionFilter}, strength].
  * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#POZYX_POS_FILTER}
  */
-export const POS_FILTER = new ReadWriteRegister<[PositionFilter, number]>(0x14, 1, buf => {
+export const POS_FILTER = new ReadWriteRegister<[PositionFilter, number]>(0x14, 1, function decode(buf) {
   // | bit 7 | bit 6 | bit 5 | bit 4 | bit 3 | bit 2 | bit 1 | bit 0 |
   // |            STRENGTH           |             FILTER            |
   const data = buf.readUInt8(0);
@@ -162,10 +162,10 @@ export const POS_FILTER = new ReadWriteRegister<[PositionFilter, number]>(0x14, 
   const filter = data & 0b1111;
 
   return [filter, strength];
-}, data => {
+}, function encode(data) {
   const [filter, strength] = data;
 
-  if (filter != 0x0 && filter != 0x1 && filter != 0x4)
+  if (filter != 0x0 && filter != 0x1 && filter != 0x3 && filter != 0x4)
     throw new Error('Invalid filter: ' + filter);
 
   if (strength < 0 || strength > 15)
@@ -204,7 +204,7 @@ export interface LEDConfiguration {
  * Encodes from and decodes to {@link LEDConfiguration}
  * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#POZYX_LED_CONFIG}
  */
-export const CONFIG_LEDS = new ReadWriteRegister<LEDConfiguration>(0x15, 1, buf => {
+export const CONFIG_LEDS = new ReadWriteRegister<LEDConfiguration>(0x15, 1, function decode(buf) {
   // | bit 7 | bit 6 | bit 5 | bit 4 | bit 3 | bit 2 | bit 1 | bit 0 |
   // |               | LEDTX | LEDRX | LED 4 | LED 3 | LED 2 | LED 1 |
   const data = buf.readUInt8(0);
@@ -219,7 +219,7 @@ export const CONFIG_LEDS = new ReadWriteRegister<LEDConfiguration>(0x15, 1, buf 
     led_rx: (data >> 4 & 1) == 1,
     led_tx: (data >> 5 & 1) == 1,
   };
-}, data => {
+}, function encode(data) {
   // create bitmap
   const bm = maskFromArray(data.leds)
     | +data.led_rx << 4
@@ -276,13 +276,13 @@ export enum PositionDimension {
  * Encodes from and decodes to [{@link PositionAlgorithm}, {@link PositionDimension}].
  * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#POZYX_POS_ALG}
  */
-export const POS_ALG = new ReadWriteRegister<[PositionAlgorithm, PositionDimension]>(0x16, 1, buf => {
+export const POS_ALG = new ReadWriteRegister<[PositionAlgorithm, PositionDimension]>(0x16, 1, function decode(buf) {
   // | bit 7 | bit 6 | bit 5 | bit 4 | bit 3 | bit 2 | bit 1 | bit 0 |
   // |               |      DIM      |           ALGORITHM           |
   const data = buf.readUInt8(0);
 
   return [data & 0b1111, data >> 4 & 0b11];
-}, data => {
+}, function encode(data) {
   const [algo, dim] = data;
 
   if (algo != 0x0 && algo != 0x4)
@@ -303,14 +303,14 @@ export const POS_ALG = new ReadWriteRegister<[PositionAlgorithm, PositionDimensi
  * Encodes from and decodes to [num, mode].
  * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#POZYX_POS_NUM_ANCHORS}
  */
-export const POS_NUM_ANCHORS = new ReadWriteRegister<[number, boolean]>(0x17, 1, buf => {
+export const POS_NUM_ANCHORS = new ReadWriteRegister<[number, boolean]>(0x17, 1, function decode(buf) {
   // | bit 7 | bit 6 | bit 5 | bit 4 | bit 3 | bit 2 | bit 1 | bit 0 |
   // |             MODE              |              NUM              |
   const data = buf.readUInt8(0);
   const num = data & 0b1111, mode = (data >> 4 & 0b1111) == 1;
 
   return [num, mode];
-}, data => {
+}, function encode(data) {
   if (data[0] < 3 || data[0] > 15)
     throw new Error('Invalid number of anchors: ' + data[0]);
   
@@ -327,9 +327,9 @@ export const POS_NUM_ANCHORS = new ReadWriteRegister<[number, boolean]>(0x17, 1,
  * Encodes from and decodes to a number.
  * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#POZYX_POS_INTERVAL}
  */
-export const POS_INTERVAL = new ReadWriteRegister<number>(0x18, 2, buf => 
-  buf.readUInt16LE(0), 
-  data => {
+export const POS_INTERVAL = new ReadWriteRegister<number>(0x18, 2, 
+  buf => buf.readUInt16LE(0), 
+  function encode(data) {
   if (data != 0 && (data < 10 || data > 60000))
     throw new Error('Invalid positioning interval: ' + data);
 
@@ -347,7 +347,7 @@ export const POS_INTERVAL = new ReadWriteRegister<number>(0x18, 2, buf =>
  */
 export const NETWORK_ID = new ReadWriteRegister<number>(0x1a, 2, 
   buf => buf.readUInt16LE(0),
-  data => {
+  function encode(data) {
   const buf = Buffer.allocUnsafe(2);
   buf.writeUInt16LE(data, 0);
 
@@ -363,7 +363,7 @@ export const NETWORK_ID = new ReadWriteRegister<number>(0x1a, 2,
  */
 export const UWB_CHANNEL = new ReadWriteRegister<number>(0x1c, 1, 
   buf => buf.readUInt8(0),
-  data => {
+  function encode(data) {
     if ((data < 1 || data > 5) && data != 7)
       throw new Error('Invalid UWB channel number: ' + data);
 
@@ -378,15 +378,21 @@ export const UWB_CHANNEL = new ReadWriteRegister<number>(0x1c, 1,
  * Encodes from and decodes to [bitrate, prf]
  * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#POZYX_UWB_RATES}
  */
-export const UWB_RATES = new ReadWriteRegister<[number, number]>(0x1d, 1, buf => {
+export const UWB_RATES = new ReadWriteRegister<[number, number]>(0x1d, 1, function decode(buf) {
   // | bit 7 | bit 6 | bit 5 | bit 4 | bit 3 | bit 2 | bit 1 | bit 0 |
   // |      PRF      |                    BITRATE                    |
   const data = buf.readUInt8(0);
   const bitrate = data & 0b11_1111, prf = data >> 6;
 
   return [bitrate, prf];
-}, data => {
-  const bm = data[0] | (data[1] << 6);
+}, function encode([bitrate, prf]) {
+  if (bitrate != 0 && bitrate != 1 && bitrate != 2)
+    throw new Error('Invalid bitrate: ' + bitrate);
+
+  if (prf != 1 && prf != 2)
+    throw new Error('Invalid prf: ' + prf);
+
+  const bm = bitrate | (prf << 6);
   return Buffer.from([bm]);
 });
 
@@ -398,12 +404,12 @@ export const UWB_RATES = new ReadWriteRegister<[number, number]>(0x1d, 1, buf =>
  */
 export const UWB_PLEN = new ReadWriteRegister<number>(0x1e, 1,
   buf => buf.readUInt8(0),
-  data => {
+  function encode(data) {
     if (data != 0x0c && data != 0x28 && data != 0x18 && data != 0x34 && 
-      data != 0x24 && data != 0x14 && data != 0x04)
+      data != 0x08 && data != 0x24 && data != 0x14 && data != 0x04)
       throw new Error('Invalid preamble length: ' + data);
 
-    return Buffer.from([0]);
+    return Buffer.from([data]);
   }
 );
 
@@ -415,7 +421,7 @@ export const UWB_PLEN = new ReadWriteRegister<number>(0x1e, 1,
  */
 export const UWB_GAIN = new ReadWriteRegister<number>(0x1f, 1,
   buf => buf.readInt8(0),
-  data => {
+  function encode(data) {
     if (data < 0 || data > 67)
       throw new Error('Invalid UWB gain: ' + data);
 
@@ -433,8 +439,8 @@ export const UWB_XTALTRIM = new ReadWriteRegister<number>(0x20, 1,
   // | bit 7 | bit 6 | bit 5 | bit 4 | bit 3 | bit 2 | bit 1 | bit 0 |
   // |                               |             TRIMVAL           |
   buf => buf.readUInt8(0),
-  data => {
-    if (data < 0 || data > 16)
+  function encode(data) {
+    if (data < 0 || data >= 16)
       throw new Error('Invalid trimming value: ' + data);
     
     return Buffer.from([data]);
@@ -466,7 +472,7 @@ export enum RangeProtocol {
  */
 export const RANGE_PROTOCOL = new ReadWriteRegister<RangeProtocol>(0x21, 1,
   buf => buf.readUInt8(0),
-  data => {
+  function encode(data) {
     if (data != 0 && data != 1)
       throw new Error('Invalid ranging protocol: ' + data);
     
@@ -498,7 +504,7 @@ export enum OperationMode {
  */
 export const OPERATION_MODE = new ReadWriteRegister<OperationMode>(0x22, 1,
   buf => buf.readUInt8(0),
-  data => {
+  function encode(data) {
     if (data != 0 && data != 1)
       throw new Error('Invalid operation mode: ' + data);
     
@@ -534,7 +540,7 @@ export enum SensorMode {
  */
 export const SENSORS_MODE = new ReadWriteRegister<SensorMode>(0x23, 1,
   buf => buf.readUInt8(0),
-  data => {
+  function encode(data) {
     if (data < 0 || data > 12)
       throw new Error('Invalid sensor mode: ' + data);
     
@@ -549,14 +555,14 @@ export const SENSORS_MODE = new ReadWriteRegister<SensorMode>(0x23, 1,
  * Encodes from and decodes to [mode, pull].
  * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#POZYX_CONFIG_GPIO1}
  */
-export const CONFIG_GPIO1 = new ReadWriteRegister<[number, number]>(0x27, 1, buf => {
+export const CONFIG_GPIO1 = new ReadWriteRegister<[number, number]>(0x27, 1, function decode(buf) {
   // | bit 7 | bit 6 | bit 5 | bit 4 | bit 3 | bit 2 | bit 1 | bit 0 |
   // |                       |      PULL     |         MODE          |
   const data = buf.readUInt8(0);
   const mode = data & 0b111, pull = (data >> 3) & 0b11;
 
   return [mode, pull];
-}, data => {
+}, function encode(data) {
   const [mode, pull] = data;
 
   if (mode < 0 || mode > 2)
