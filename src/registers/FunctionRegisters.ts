@@ -1,5 +1,5 @@
 import { FunctionRegister } from './Register';
-import { maskFromArray, isValidNetworkID, isValidCoordinate, MIN_INT32, MAX_INT32 } from '../utils';
+import { maskFromArray, MIN_INT32, MAX_INT32 } from '../utils';
 import Coordinate from '../Coordinate';
 
 const EMPTY_BUFFER = Buffer.allocUnsafe(0);
@@ -386,83 +386,83 @@ export interface DeviceInfo {
 };
 
 // TODO: DEVICE_ADD
-export const DEVICE_ADD = new FunctionRegister<DeviceInfo, boolean>(0xc4, 1,
-  IS_SUCCESS,
-  ({id, isAnchor, position}) => {
-    if (! isValidNetworkID(id))
-      throw new Error('Invalid network id: ' + id);
+// export const DEVICE_ADD = new FunctionRegister<DeviceInfo, boolean>(0xc4, 1,
+//   IS_SUCCESS,
+//   ({id, isAnchor, position}) => {
+//     if (! isValidNetworkID(id))
+//       throw new Error('Invalid network id: ' + id);
 
-    if (! isValidCoordinate(position))
-      throw new Error('Invalid position: ' + position);
+//     if (! isValidCoordinate(position))
+//       throw new Error('Invalid position: ' + position);
 
-    const buf = Buffer.allocUnsafe(15);
+//     const buf = Buffer.allocUnsafe(15);
     
-    buf.writeUInt16LE(id, 0);
-    buf.writeUInt8(+isAnchor, 2);
+//     buf.writeUInt16LE(id, 0);
+//     buf.writeUInt8(+isAnchor, 2);
 
-    buf.writeInt32LE(position.x, 3);
-    buf.writeInt32LE(position.y, 7);
-    buf.writeInt32LE(position.z, 11);
+//     buf.writeInt32LE(position.x, 3);
+//     buf.writeInt32LE(position.y, 7);
+//     buf.writeInt32LE(position.z, 11);
 
-    return buf;
-  }
-);
+//     return buf;
+//   }
+// );
 
 // TODO: DEVICE_GETINFO
-export const DEVICE_GETINFO = new FunctionRegister<number, [boolean, DeviceInfo]>(0xc5, 15,
-  buf => {
-    const ok = buf.readUInt8(0);
+// export const DEVICE_GETINFO = new FunctionRegister<number, [boolean, DeviceInfo]>(0xc5, 15,
+//   buf => {
+//     const ok = buf.readUInt8(0);
 
-    if (! ok)
-      return [false, null];
+//     if (! ok)
+//       return [false, null];
 
-    const info = {
-      id: buf.readUInt16LE(1),
-      isAnchor: buf.readUInt8(3) == 1,
-      position: {
-        x: buf.readInt32LE(4),
-        y: buf.readInt32LE(8),
-        z: buf.readInt32BE(12)
-      } 
-    };
+//     const info = {
+//       id: buf.readUInt16LE(1),
+//       isAnchor: buf.readUInt8(3) == 1,
+//       position: {
+//         x: buf.readInt32LE(4),
+//         y: buf.readInt32LE(8),
+//         z: buf.readInt32BE(12)
+//       } 
+//     };
 
-    return [true, info];
-  },
-  id => {
-    if (isValidNetworkID(id))
-      throw new Error('Invalid network id: ' + id);
+//     return [true, info];
+//   },
+//   id => {
+//     if (isValidNetworkID(id))
+//       throw new Error('Invalid network id: ' + id);
     
-    const buf = Buffer.allocUnsafe(2);
-    buf.writeUInt16LE(id, 0);
+//     const buf = Buffer.allocUnsafe(2);
+//     buf.writeUInt16LE(id, 0);
 
-    return buf;
-  }
-);
+//     return buf;
+//   }
+// );
 
 // TODO: DEVICE_GETCOORDS
-export const DEVICE_GETCOORDS = new FunctionRegister<number, [boolean, Coordinate]>(0xc6, 12,
-  buf => {
-    const ok = buf.readUInt8(0);
+// export const DEVICE_GETCOORDS = new FunctionRegister<number, [boolean, Coordinate]>(0xc6, 12,
+//   buf => {
+//     const ok = buf.readUInt8(0);
 
-    if (! ok)
-      return [false, null];
+//     if (! ok)
+//       return [false, null];
 
-    return [true, {
-      x: buf.readInt32LE(1),
-      y: buf.readInt32LE(5),
-      z: buf.readInt32LE(9),
-    }];
-  },
-  id => {
-    if (isValidNetworkID(id))
-      throw new Error('Invalid network id: ' + id);
+//     return [true, {
+//       x: buf.readInt32LE(1),
+//       y: buf.readInt32LE(5),
+//       z: buf.readInt32LE(9),
+//     }];
+//   },
+//   id => {
+//     if (isValidNetworkID(id))
+//       throw new Error('Invalid network id: ' + id);
     
-    const buf = Buffer.allocUnsafe(2);
-    buf.writeUInt16LE(id, 0);
+//     const buf = Buffer.allocUnsafe(2);
+//     buf.writeUInt16LE(id, 0);
 
-    return buf;
-  }
-);
+//     return buf;
+//   }
+// );
 
 export interface RangeInfo {
   timestamp: number,
@@ -471,28 +471,28 @@ export interface RangeInfo {
 }
 
 // TODO: DEVICE_GETRANGEINFO
-export const DEVICE_GETRANGEINFO = new FunctionRegister<number, [boolean, RangeInfo]>(0xc6, 10,
-  buf => {
-    const ok = buf.readUInt8(0);
+// export const DEVICE_GETRANGEINFO = new FunctionRegister<number, [boolean, RangeInfo]>(0xc6, 10,
+//   buf => {
+//     const ok = buf.readUInt8(0);
     
-    if (! ok)
-      return [false, null];
+//     if (! ok)
+//       return [false, null];
 
-    return [true, {
-      timestamp: buf.readUInt32LE(1),
-      range: buf.readUInt32LE(5),
-      strength: buf.readInt16LE(9),
-    }];
-  },
-  id => {
-    if (isValidNetworkID(id))
-      throw new Error('Invalid network id: ' + id);
+//     return [true, {
+//       timestamp: buf.readUInt32LE(1),
+//       range: buf.readUInt32LE(5),
+//       strength: buf.readInt16LE(9),
+//     }];
+//   },
+//   id => {
+//     if (isValidNetworkID(id))
+//       throw new Error('Invalid network id: ' + id);
     
-    const buf = Buffer.allocUnsafe(2);
-    buf.writeUInt16LE(id, 0);
+//     const buf = Buffer.allocUnsafe(2);
+//     buf.writeUInt16LE(id, 0);
 
-    return buf;
-  }
-);
+//     return buf;
+//   }
+// );
 
 // TODO: DEVICE_CIR_DATA
