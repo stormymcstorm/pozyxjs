@@ -13,7 +13,7 @@ const MIN_INT32 = -Math.pow(2, 31);
  */
 export const POS_X = new ReadWriteRegister<number>(0x30, 4, 
   buf => buf.readInt32LE(0), 
-  data => {
+  function encode(data) {
     if (data < MIN_INT32 || data > MAX_INT32)
       throw new Error('Invalid position: ' + data);
     
@@ -204,36 +204,36 @@ export const EUL_ROLL = new ReadRegister<number>(0x68, 2, EUL_HEADING.decode);
 export const EUL_PITCH = new ReadRegister<number>(0x6a, 2, EUL_HEADING.decode);
 
 /**
- * Reads the device's QWAT_W register. The value represents the measured 
+ * Reads the device's QUAT_W register. The value represents the measured 
  * weight of the quaternion. 1 quaternion unit = 2^14 int.
  * Decodes to a number.
  * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#POZYX_QWAT_W}
  */
-export const QWAT_W = new ReadRegister<number>(0x6c, 2, buf => buf.readInt16LE(0));
+export const QUAT_W = new ReadRegister<number>(0x6c, 2, buf => buf.readInt16LE(0));
 
 /**
- * Reads the device's QWAT_X register. The value represents the measured 
+ * Reads the device's QUAT_X register. The value represents the measured 
  * x of the quaternion. 1 quaternion unit = 2^14 int.
  * Decodes to a number.
  * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#POZYX_QWAT_X}
  */
-export const QWAT_X = new ReadRegister<number>(0x6e, 2, QWAT_W.decode);
+export const QUAT_X = new ReadRegister<number>(0x6e, 2, QUAT_W.decode);
 
 /**
- * Reads the device's QWAT_Y register. The value represents the measured 
+ * Reads the device's QUAT_Y register. The value represents the measured 
  * y of the quaternion. 1 quaternion unit = 2^14 int.
  * Decodes to a number.
  * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#POZYX_QWAT_Y}
  */
-export const QWAT_Y = new ReadRegister<number>(0x70, 2, QWAT_W.decode);
+export const QUAT_Y = new ReadRegister<number>(0x70, 2, QUAT_W.decode);
 
 /**
- * Reads the device's QWAT_Z register. The value represents the measured 
+ * Reads the device's QUAT_Z register. The value represents the measured 
  * z of the quaternion. 1 quaternion unit = 2^14 int.
  * Decodes to a number.
  * @see {@link https://www.pozyx.io/product-info/developer-tag/datasheet-register-overview#POZYX_QWAT_Z}
  */
-export const QWAT_Z = new ReadRegister<number>(0x72, 2, QWAT_W.decode);
+export const QUAT_Z = new ReadRegister<number>(0x72, 2, QUAT_W.decode);
 
 /**
  * Reads the device's LIA_X register. The value represents the measured 
